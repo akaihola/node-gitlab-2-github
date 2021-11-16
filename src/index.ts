@@ -63,6 +63,7 @@ const githubApi = new GitHubApi({
     accept: 'application/vnd.github.v3+json',
   },
   auth: 'token ' + settings.github.token,
+  log: console,
 });
 
 const gitlabHelper = new GitlabHelper(gitlabApi, settings.gitlab);
