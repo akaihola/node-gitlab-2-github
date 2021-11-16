@@ -1,3 +1,9 @@
+var log = console.log;
+
+console.log = function(...args: any[]){
+  log.apply(console, [Date.now()].concat(args));
+};
+
 import GithubHelper from './githubHelper';
 import GitlabHelper from './gitlabHelper';
 import settings from '../settings';
