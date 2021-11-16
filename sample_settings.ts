@@ -31,6 +31,7 @@ export default {
   transfer: {
     description: true,
     mergeRequests: true,
+    migrationTopic: false,
   },
   debug: false,
   usePlaceholderIssuesForMissingIssues: true,
