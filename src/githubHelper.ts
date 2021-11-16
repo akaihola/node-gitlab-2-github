@@ -819,20 +819,22 @@ export default class GithubHelper {
    */
 
   async convertIssuesAndComments(str: string, item: any) {
+    const originalLink = item.web_url ? `${item.web_url}\n\n` : '';
+    const body = originalLink + str;
     const repoLink = `${this.githubUrl}/${this.githubOwner}/${this.githubRepo}`;
     if (
       (!settings.usermap || Object.keys(settings.usermap).length === 0) &&
       (!settings.projectmap || Object.keys(settings.projectmap).length === 0)
     ) {
-      return GithubHelper.addMigrationLine(str, item, repoLink);
+      return GithubHelper.addMigrationLine(body, item, repoLink);
     } else {
       // - Replace userids as defined in settings.usermap.
       //   They all start with '@' in the issues but we have them without in usermap
       // - Replace cross-project issue references. They are matched on org/project# so 'matched' ends with '#'
       //   They all have a '#' right after the project name in the issues but we have them without in projectmap
-      let strWithMigLine = GithubHelper.addMigrationLine(str, item, repoLink);
+      let bodyWithMigLine = GithubHelper.addMigrationLine(body, item, repoLink);
 
-      strWithMigLine = strWithMigLine.replace(
+      bodyWithMigLine = bodyWithMigLine.replace(
         this.userProjectRegex,
         matched => {
           if (matched.startsWith('@')) {
@@ -852,10 +854,10 @@ export default class GithubHelper {
       );
 
       if (settings.s3) {
-        strWithMigLine = await utils.migrateAttachments(strWithMigLine, this.repoId, settings.s3, this.gitlabHelper);
+        bodyWithMigLine = await utils.migrateAttachments(bodyWithMigLine, this.repoId, settings.s3, this.gitlabHelper);
       }
 
-      return strWithMigLine;
+      return bodyWithMigLine;
     }
   }
 
