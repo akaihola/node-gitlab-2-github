@@ -29,9 +29,7 @@ export default {
     useLowerCaseLabels: true,
   },
   transfer: {
-    milestones: true,
-    labels: true,
-    issues: true,
+    description: true,
     mergeRequests: true,
   },
   debug: false,
