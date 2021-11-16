@@ -82,6 +82,7 @@ const githubApi = new MyOctokit({
       return true;
     },
   },
+  log: console,
 });
 
 const gitlabHelper = new GitlabHelper(gitlabApi, settings.gitlab);
