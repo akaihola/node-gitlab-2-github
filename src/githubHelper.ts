@@ -18,6 +18,7 @@ export default class GithubHelper {
   userProjectRegex: RegExp;
   repoId?: number;
   delayInMs: number;
+  delayAfterTriggeringRequestsInMs: number;
   useIssuesForAllMergeRequests: boolean;
 
   constructor(githubApi: GitHubApi,
@@ -35,7 +36,8 @@ export default class GithubHelper {
     this.gitlabHelper = gitlabHelper;
     // regex for converting user from GitLab to GitHub
     this.userProjectRegex = utils.generateUserProjectRegex();
-    this.delayInMs = 19000;
+    this.delayInMs = 2000;
+    this.delayAfterTriggeringRequestsInMs = 19000;
     this.useIssuesForAllMergeRequests = useIssuesForAllMergeRequests;
   }
 
@@ -303,7 +305,9 @@ export default class GithubHelper {
 
     if (settings.debug) return Promise.resolve({ data: issue });
     // create the GitHub issue from the GitLab issue
-    return this.githubApi.issues.create(props);
+    const response = this.githubApi.issues.create(props);
+    await utils.sleep(this.delayAfterTriggeringRequestsInMs);
+    return response;
   }
 
   // ----------------------------------------------------------------------------
@@ -408,6 +412,7 @@ export default class GithubHelper {
           console.error(x);
           process.exit(1);
         });
+      await utils.sleep(this.delayAfterTriggeringRequestsInMs);
       return true;
     }
   }
@@ -434,7 +439,9 @@ export default class GithubHelper {
       return Promise.resolve();
     }
     // make the state update
-    return await this.githubApi.issues.update(props);
+    const response = await this.githubApi.issues.update(props);
+    await utils.sleep(this.delayAfterTriggeringRequestsInMs);
+    return response;
   }
 
   // ----------------------------------------------------------------------------
@@ -598,6 +605,7 @@ export default class GithubHelper {
       try {
         // try to create the GitHub pull request from the GitLab issue
         await this.githubApi.pulls.create(props);
+        await utils.sleep(this.delayAfterTriggeringRequestsInMs);
         return Promise.resolve({ data: null }); // need to return null promise for parent to wait on
       } catch (err) {
         if(err.status === 422) {
@@ -632,7 +640,9 @@ export default class GithubHelper {
     // Add a label to indicate the issue is a merge request
     pullRequest.labels.push('gitlab merge request');
 
-    return this.githubApi.issues.create(props);
+    const response = this.githubApi.issues.create(props);
+    utils.sleep(this.delayAfterTriggeringRequestsInMs);
+    return response;
   }
 
   // ----------------------------------------------------------------------------
@@ -747,7 +757,9 @@ export default class GithubHelper {
       });
     }
 
-    return await this.githubApi.issues.update(props);
+    const response = await this.githubApi.issues.update(props);
+    await utils.sleep(this.delayAfterTriggeringRequestsInMs);
+    return response;
   }
 
   // ----------------------------------------------------------------------------
@@ -787,7 +799,9 @@ export default class GithubHelper {
 
     // Use the Issues API; all pull requests are issues, and we're not modifying any pull request-sepecific fields. This
     // then works for merge requests that cannot be created and are migrated as issues.
-    return await this.githubApi.issues.update(props);
+    const response = await this.githubApi.issues.update(props);
+    await utils.sleep(this.delayAfterTriggeringRequestsInMs);
+    return response;
   }
 
   // ----------------------------------------------------------------------------
